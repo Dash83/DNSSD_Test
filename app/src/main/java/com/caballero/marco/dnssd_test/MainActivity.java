@@ -184,28 +184,24 @@ public class MainActivity extends ActionBarActivity
         serviceRequest = WifiP2pDnsSdServiceRequest.newInstance();
         mManager.addServiceRequest(channel, serviceRequest, new ActionListener() {
             @Override
-            public void onSuccess()
-            {
+            public void onSuccess() {
                 Log.v("DnsSDTest", "Service Request added successfully!");
             }
 
             @Override
-            public void onFailure(int reason)
-            {
+            public void onFailure(int reason) {
                 Log.v("DnsSDTest", "Failed to add service request!");
             }
         });
 
         mManager.discoverServices(channel, new ActionListener() {
             @Override
-            public void onSuccess()
-            {
+            public void onSuccess() {
                 Log.v("DnsSDTest", "Service discovery successfull!");
             }
 
             @Override
-            public void onFailure(int reason)
-            {
+            public void onFailure(int reason) {
                 Log.v("DnsSDTest", "Service discovery failed :(");
             }
         });
@@ -217,15 +213,13 @@ public class MainActivity extends ActionBarActivity
         super.onPause();
         mManager.removeLocalService(channel, serviceInfo, new ActionListener() {
             @Override
-            public void onSuccess()
-            {
+            public void onSuccess() {
                 Log.v("DnsSDTest", "Removed service");
                 serviceInfo = null;
             }
 
             @Override
-            public void onFailure(int reason)
-            {
+            public void onFailure(int reason) {
                 Log.v("DnsSDTest", "Failed to remove service");
             }
         });
@@ -238,6 +232,19 @@ public class MainActivity extends ActionBarActivity
         if(serviceInfo == null)
         {
             startRegistration();
+        }
+    }
+
+    @Override
+    protected void onDestroy()
+    {
+        super.onDestroy();
+
+        try {
+            if(!serverSocket.isClosed())
+                serverSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
