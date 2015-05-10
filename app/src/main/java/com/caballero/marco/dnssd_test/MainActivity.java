@@ -45,6 +45,7 @@ public class MainActivity extends ActionBarActivity
     private WifiP2pDnsSdServiceRequest serviceRequest;
     private DnsSdServiceResponseListener serviceResponseListener;
     private DnsSdTxtRecordListener txtRecordListener;
+    private WifiP2pDnsSdServiceInfo serviceInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -112,8 +113,7 @@ public class MainActivity extends ActionBarActivity
         // Service information.  Pass it an instance name, service type
         // _protocol._transportlayer , and the map containing
         // information other devices will want once they connect to this one.
-        WifiP2pDnsSdServiceInfo serviceInfo =
-                WifiP2pDnsSdServiceInfo.newInstance(SERVICE_NAME, "._tcp", record);
+        serviceInfo = WifiP2pDnsSdServiceInfo.newInstance(SERVICE_NAME, "._tcp", record);
 
         // Add the local service, sending the service info, network channel,
         // and listener that will be used to indicate success or failure of
@@ -126,6 +126,7 @@ public class MainActivity extends ActionBarActivity
                 SpannableString text = new SpannableString("Online");
                 text.setSpan(new ForegroundColorSpan(Color.GREEN), 0, text.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                 txtServiceStatus.setText(text);
+                Log.v("DnsSDTest", "Service added.");
             }
 
             @Override
@@ -208,5 +209,35 @@ public class MainActivity extends ActionBarActivity
                 Log.v("DnsSDTest", "Service discovery failed :(");
             }
         });
+    }
+
+    @Override
+    protected void onPause()
+    {
+        super.onPause();
+        mManager.removeLocalService(channel, serviceInfo, new ActionListener() {
+            @Override
+            public void onSuccess()
+            {
+                Log.v("DnsSDTest", "Removed service");
+                serviceInfo = null;
+            }
+
+            @Override
+            public void onFailure(int reason)
+            {
+                Log.v("DnsSDTest", "Failed to remove service");
+            }
+        });
+    }
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        if(serviceInfo == null)
+        {
+            startRegistration();
+        }
     }
 }
